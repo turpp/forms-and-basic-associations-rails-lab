@@ -9,12 +9,22 @@ class SongsController < ApplicationController
 
   def new
     @song = Song.new
+    @genres=Genre.all.map do |g|
+      [g.name,g.id]
+    end
+    
   end
 
   def create
     @song = Song.new(song_params)
-
-    if @song.save
+    if @song.valid?
+      #   helpers.artist_name=(params[:song][:artist])
+          notes=params[:song][:notes]
+          notes.each do |note|
+            n=Note.create(content: params[:song][:notes][note])
+            @song.notes.push(n)
+           end
+      @song.save
       redirect_to @song
     else
       render :new
@@ -47,7 +57,7 @@ class SongsController < ApplicationController
   private
 
   def song_params
-    params.require(:song).permit(:title)
+    params.require(:song).permit(:title,:genre_id, :artist_name,:notes)
   end
 end
 
